@@ -1,0 +1,80 @@
+from __gin__ import dynamic_registration
+import __main__ as train_script
+
+# Register necessary SeqIO Tasks/Mixtures.
+
+from t5x.examples.unified_io.data import tasks
+from t5x.examples.unified_io.data import mixtures
+from t5x.examples.unified_io import aux_fns
+from t5x.examples.unified_io import models
+from t5x import partitioning
+from t5x import utils
+
+include 't5x/examples/unified_io/t5_1_1/base.gin'
+include 't5x/configs/runs/finetune.gin'
+
+from t5x.examples.unified_io.data import visual_dialogue_tasks
+from t5x.examples.unified_io.data import visual_dialogue_meta_tasks
+from t5x.examples.unified_io.data import multi_images_visual_dialogue_tasks
+from t5x.examples.unified_io.data import dialogue_tasks
+from t5x.examples.unified_io.data import viscomet
+from t5x.examples.unified_io.data import vcr
+from t5x.examples.unified_io.data import tvc
+
+WANDB_GROUP = %gin.REQUIRED
+WANDB_NAME = %gin.REQUIRED
+EVAL_PERIOD = 700
+
+MIXTURE_OR_TASK_NAME = "tvc:single"
+MIXTURE_OR_TASK_NAME_EVAL = "tvc:single"
+TASK_FEATURE_LENGTHS_TRAIN = {"text_inputs": 256, "text_targets": 128, "image_input_samples": 576, "is_training": True}
+TASK_FEATURE_LENGTHS_EVAL = {"text_inputs": 256, "text_targets": 128, "image_input_samples": 576, "is_training": False}
+
+DROPOUT_RATE = 0.0
+TEXT_DECODER_LENGTH = 128
+IMAGE_DECODER_LENGTH = 1
+
+BATCH_SIZE = 256
+USE_CACHED_TASKS = False
+
+LOSS_NORMALIZING_BY_WEIGHT_SUM = True
+
+train_script.train:
+  eval_period = %EVAL_PERIOD
+  stats_period = %EVAL_PERIOD
+  partitioner = @partitioning.PjitPartitioner()
+
+
+from t5x.examples.unified_io import decoding
+models.EncoderDecoderModel.predict_batch_with_aux.num_decodes = 1
+models.EncoderDecoderModel.predict_batch_with_aux.text_length = %TEXT_DECODER_LENGTH
+models.EncoderDecoderModel.predict_batch_with_aux.image_length = %IMAGE_DECODER_LENGTH
+partitioning.PjitPartitioner.num_partitions = 1
+
+from t5x.examples.unified_io import evaluator
+train_script.train.inference_evaluator_cls = @evaluator.UnifiedIOEvaluator
+train_script.train.concurrent_metrics = False
+
+
+from t5x.examples.unified_io import evaluator
+import seqio
+
+
+evaluator.UnifiedIOEvaluator:
+  logger_cls = [@seqio.PyLoggingLogger, @seqio.TensorBoardLogger, @seqio.JSONLogger]
+  num_examples = %EVALUATOR_NUM_EXAMPLES
+  use_memory_cache = %EVALUATOR_USE_MEMORY_CACHE
+
+utils.SaveCheckpointConfig:
+  period = %EVAL_PERIOD
+
+utils.create_learning_rate_scheduler:
+  factors = 'constant'
+  base_learning_rate = 0.0003
+  warmup_steps = 0  # 10k to keep consistent with T5/MTF defaults.
+
+from t5x.examples.unified_io import utils as unified_io_utils
+
+unified_io_utils.init_wandb:
+    group = %WANDB_GROUP
+    name = %WANDB_NAME

@@ -1,0 +1,49 @@
+from __gin__ import dynamic_registration
+
+# This imports the basic and sets up these required parameters
+# MIXTURE_OR_TASK_NAME
+# CHECKPOINT_PATH
+# EVAL_OUTPUT_DIR
+include 't5x/configs/runs/eval.gin'
+
+TEXT_INPUTS = 256
+TEXT_DECODER_LENGTH = 64
+
+DROPOUT_RATE = 0.0  # might be required by an imported model config
+
+TASK_FEATURE_LENGTHS = {"text_inputs": %TEXT_INPUTS, "text_targets": %TEXT_DECODER_LENGTH,
+                        "image_input_samples": 576, "is_training": False}
+
+
+from t5x.examples.unified_io import models
+models.EncoderDecoderModel.predict_batch_with_aux.text_length = %TEXT_DECODER_LENGTH
+models.EncoderDecoderModel.predict_batch_with_aux.image_length = 1
+models.EncoderDecoderModel.predict_batch_with_aux.num_decodes = 10
+
+# Import so any gin configurable method in these files will be registered with gin
+# and thus can be modified by command line
+from t5x.examples.unified_io import network
+from t5x.examples.unified_io.data import metrics
+from t5x.examples.unified_io import decoding
+
+# Import so the registration happens
+from t5x.examples.unified_io.data import tasks
+from t5x.examples.unified_io.data import mixtures
+
+# For saving the text output
+from t5x.examples.unified_io.data import metrics
+from t5x.examples.unified_io.data import nlp_tasks
+from t5x.examples.unified_io.data import dialogue_tasks
+from t5x.examples.unified_io.data import visual_dialogue_tasks
+from t5x.examples.unified_io.data import visual_dialogue_meta_tasks
+from t5x.examples.unified_io.data import cmumosei
+from t5x.examples.unified_io.data import viscomet
+from t5x.examples.unified_io.data import vcr
+from t5x.examples.unified_io.data import tvc
+from t5x.examples.unified_io import evaluator
+evaluator.UnifiedIOEvaluator.logger_cls = [@metrics.SaveMetrics]
+
+from t5x import utils
+utils.DatasetConfig:
+  split = 'test'
+  batch_size = 256

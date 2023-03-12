@@ -1,1 +1,3 @@
 OWNER_NAME = ''
+TPU_HOSTS = []
+TFDS_DIR = ''

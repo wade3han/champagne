@@ -1,0 +1,83 @@
+# T5.1.1 Base model.
+from __gin__ import dynamic_registration
+
+import seqio
+from t5x import adafactor
+from t5x.examples.unified_io import multi_image_models
+from t5x.examples.unified_io import multi_image_network
+from t5x.examples.unified_io import network
+
+# ------------------- Loss HParam ----------------------------------------------
+Z_LOSS = 0.0001
+LABEL_SMOOTHING = 0.0
+TEXT_DECODER_LENGTH = None
+IMAGE_DECODER_LENGTH = None
+# NOTE: When fine-tuning the public T5 checkpoints (trained in T5 MeshTF)
+# the loss normalizing factor should be set to pretraining batch_size *
+# target_token_length.
+LOSS_NORMALIZING_FACTOR = None
+LOSS_NORMALIZING_BY_WEIGHT_SUM = False
+# Dropout should be specified in the "run" files
+DROPOUT_RATE = %gin.REQUIRED
+
+# Vocabulary (shared by encoder and decoder)
+VOCABULARY = @seqio.SentencePieceVocabulary()
+seqio.SentencePieceVocabulary.sentencepiece_model_file = "gs://t5-data/vocabs/cc_all.32000.100extra/sentencepiece.model"
+
+# ------------------- Optimizer ------------------------------------------------
+# `learning_rate` is set by `Trainer.learning_rate_fn`.
+OPTIMIZER = @adafactor.Adafactor()
+adafactor.Adafactor:
+  decay_rate = 0.8
+  beta1 = 0.9
+  step_offset = 0
+  logical_factor_rules = @adafactor.standard_logical_factor_rules()
+  skip_nan_updates = True
+  global_norm_clip_threshold = 1.0
+
+# ------------------- Model ----------------------------------------------------
+MODEL = @multi_image_models.MultiImageEncoderDecoderModel()
+multi_image_models.MultiImageEncoderDecoderModel:
+  module = @multi_image_network.VideoTransformer()
+  input_vocabulary = %VOCABULARY
+  output_vocabulary = %VOCABULARY
+  optimizer_def = %OPTIMIZER
+  z_loss = %Z_LOSS
+  label_smoothing = %LABEL_SMOOTHING
+  loss_normalizing_factor = %LOSS_NORMALIZING_FACTOR
+  loss_normalizing_by_weight_sum = %LOSS_NORMALIZING_BY_WEIGHT_SUM
+  text_decoder_length = %TEXT_DECODER_LENGTH
+  image_decoder_length = %IMAGE_DECODER_LENGTH
+
+# ------------------- Network specification ------------------------------------
+multi_image_network.VideoTransformer.config = @network.T5Config()
+multi_image_network.VideoTransformer.vae_config = @network.VAEConfig()
+
+network.T5Config:
+  vocab_size = 33152  # vocab size rounded to a multiple of 128 for TPU efficiency
+  image_vocab_size = 16384
+  image_patch_size = 16
+  dtype = 'bfloat16'
+  emb_dim = 768
+  num_heads = 12
+  num_encoder_layers = 12
+  num_decoder_layers = 12
+  head_dim = 64
+  mlp_dim = 2048
+  mlp_activations = ('gelu', 'linear')
+  dropout_rate = %DROPOUT_RATE
+  logits_via_embedding = True
+
+network.VAEConfig:
+  embed_dim = 256
+  n_embed = 16384
+  double_z = False
+  z_channels = 256
+  resolution = 256
+  in_channels = 3
+  out_ch = 3
+  ch = 128
+  ch_mult = [1,1,2,2,4]
+  num_res_blocks = 2
+  attn_resolutions = [16]
+  dropout = 0

@@ -43,7 +43,6 @@ the TPU VM instance unless otherwise stated.
 
     python3 -m pip install -e '.[tpu]' -f \
       https://storage.googleapis.com/jax-releases/libtpu_releases.html
-
     ```
 
 5.  Create Google Cloud Storage (GCS) bucket to store the dataset and model
@@ -52,18 +51,21 @@ the TPU VM instance unless otherwise stated.
 
 ## Running Codes
 
+First, you need to fill in `settings.py` with your own config.
+
 ### Setting Up TPU Instance before Running Code
 
-    ```python
-    # setting up TPU instance with 8 TPU cores
-    python tpu_install.py --tpu-pod-name ${TPU_NAME} --tpu-size 8
-    ```
+```sh
+# setting up TPU instance with 8 TPU cores
+python tpu_install.py --tpu-pod-name ${TPU_NAME} --tpu-size 8
+```
 
 ### Run Script on TPU
-    ```python
-    # run script on TPU with 256 TPU cores
-    python tpu_run.py --tpu-pod-name ${TPU_NAME} --tpu-size 256 --run-sh ${SCRIPT_SH} 
-    ```
+
+```sh
+# run script on TPU with 256 TPU cores
+python tpu_run.py --tpu-pod-name ${TPU_NAME} --tpu-size 256 --run-sh ${SCRIPT_SH} 
+```
 
 ## References
 

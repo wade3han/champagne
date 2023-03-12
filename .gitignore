@@ -7,3 +7,5 @@ unified_io.egg-info/*
 *.csv
 *.pdf
 json/
+*frozen*
+*demo*
