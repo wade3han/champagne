@@ -1,0 +1,9 @@
+*.pyc
+t5x.egg-info/*
+wandb/*
+unified_io.egg-info/*
+.vscode
+*.zip
+*.csv
+*.pdf
+json/
