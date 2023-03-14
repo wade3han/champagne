@@ -1,6 +1,7 @@
 # CHAMPAGNE: Learning Real-world Conversation from Large-Scale Web Videos
 
 This repo contains official JAX implementation of our paper "CHAMPAGNE: Learning Real-world Conversation from Large-Scale Web Videos"
+Datas and model weights will be soon released, stay tuned!
 
 ## Installation
 
@@ -64,7 +65,7 @@ python tpu_install.py --tpu-pod-name ${TPU_NAME} --tpu-size 8
 
 ```sh
 # run script on TPU with 256 TPU cores
-python tpu_run.py --tpu-pod-name ${TPU_NAME} --tpu-size 256 --run-sh ${SCRIPT_SH} 
+python tpu_run.py --tpu-pod-name ${TPU_NAME} --tpu-size 256 --run-sh ${SCRIPT_SH}
 ```
 
 ## References
