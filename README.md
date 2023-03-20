@@ -1,5 +1,9 @@
 # :champagne: CHAMPAGNE: Learning Real-world Conversation from Large-Scale Web Videos
 
+[Project Page](https://seungjuhan.me/champagne/)
+
+[Paper Link](https://arxiv.org/abs/2303.09713)
+
 This repo contains official JAX implementation of our paper "CHAMPAGNE: Learning Real-world Conversation from Large-Scale Web Videos"
 Datas and model weights will be soon released, stay tuned!
 
