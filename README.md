@@ -5,7 +5,8 @@
 [Paper Link](https://arxiv.org/abs/2303.09713)
 
 This repo contains official JAX implementation of our paper "CHAMPAGNE: Learning Real-world Conversation from Large-Scale Web Videos"
-Datas and model weights will be soon released, stay tuned!
+
+- [Update: 23/03/29] Now the TPU checkpoints and datasets are released. Please check the [Project Page](https://seungjuhan.me/champagne/)!
 
 ## Installation
 
@@ -72,6 +73,15 @@ python tpu_install.py --tpu-pod-name ${TPU_NAME} --tpu-size 8
 python tpu_run.py --tpu-pod-name ${TPU_NAME} --tpu-size 256 --run-sh ${SCRIPT_SH}
 ```
 
-## References
+### Citation
 
-- Unified-IO
+If the paper inspires you, please cite us:
+
+```
+@article{han2023champagne,
+  title={CHAMPAGNE: Learning Real-world Conversation from Large-Scale Web Videos},
+  author={Han, Seungju and Hessel, Jack and Dziri, Nouha and Choi, Yejin and Yu, Youngjae},
+  journal={arXiv preprint arXiv:2303.09713},
+  year={2023}
+}
+```
