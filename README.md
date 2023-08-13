@@ -1,4 +1,4 @@
-# :champagne: CHAMPAGNE: Learning Real-world Conversation from Large-Scale Web Videos
+# :champagne: CHAMPAGNE: Learning Real-world Conversation from Large-Scale Web Videos (ICCV 23)
 
 [Project Page](https://seungjuhan.me/champagne/)
 
